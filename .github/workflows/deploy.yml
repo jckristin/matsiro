@@ -3,32 +3,22 @@ name: Deploy to Raspberry Pi 4
 on:
   push:
     branches:
-      - main # Déclenche le déploiement sur chaque push sur main
+      - main
 
 jobs:
   deploy:
-    runs-on: self-hosted # Utilise votre Raspberry Pi au lieu des serveurs GitHub
+    runs-on: self-hosted
 
     steps:
-      - name: Checkout du code
-        uses: actions/checkout@v4
-
-      - name: Mettre à jour le projet et redémarrer les services
+      - name: Déploiement de l'application Symfony
         run: |
-          # Exemple pour une application Web / PHP / Docker sur le Pi
-          echo "Déploiement en cours..."
+          cd /var/www/matsiro
+          git config --global --add safe.directory /var/www/matsiro
           
-          # Aller dans le dossier où se trouve l'application sur le Pi
-          cd /var/www/mon-projet
-          
-          # Mettre à jour le code
-          git pull origin main
-          
-          # Si vous utilisez Composer (ex: Symfony)
-          # composer install --no-dev --optimize-autoloader
-          
-          # Si vous utilisez Docker Compose
-          # docker compose up -d --build --remove-orphans
-          
-          # Ou recharger Nginx / FPM
-          # sudo systemctl reload nginx
+          # Récupération du code
+          git fetch origin main
+          git reset --hard origin/main
+
+          # Installation des dépendances et vide du cache
+          composer install --no-dev --optimize-autoloader
+          php bin/console cache:clear --env=prod
