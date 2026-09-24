@@ -10,17 +10,15 @@ jobs:
     runs-on: self-hosted
 
     steps:
-      # L'action checkout télécharge automatiquement le code sur le Pi
-      - name: Checkout du code
-        uses: actions/checkout@v4
-
       - name: Déploiement de l'application Symfony
         run: |
-          # Copie des fichiers récupérés vers le dossier de destination
-          sudo cp -r . /var/www/matsiro/
           cd /var/www/matsiro
-          sudo chown -R intelloctet:intelloctet /var/www/matsiro
+          git config --global --add safe.directory /var/www/matsiro
+          
+          # Récupération du code
+          git fetch origin main
+          git reset --hard origin/main
 
-          # Installation des dépendances et nettoyage du cache
+          # Installation des dépendances et vide du cache
           composer install --no-dev --optimize-autoloader
           php bin/console cache:clear --env=prod
