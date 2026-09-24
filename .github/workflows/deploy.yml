@@ -14,11 +14,16 @@ jobs:
         run: |
           cd /var/www/matsiro
           git config --global --add safe.directory /var/www/matsiro
-          
-          # Récupération du code
+
+          # 1. Récupérer le dernier code
           git fetch origin main
           git reset --hard origin/main
 
-          # Installation des dépendances et vide du cache
+          # 2. Supprimer manuellement le cache existant pour éviter les conflits d'autoloader
+          rm -rf var/cache/*
+
+          # 3. Installer les dépendances SANS exécuter les scripts automatiques
           composer install --no-dev --optimize-autoloader --no-scripts
+
+          # 4. Nettoyer et réchauffer le cache pour la production
           php bin/console cache:clear --env=prod
